@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AR Robot</title>
+  <title>AR Robot Superficie</title>
   <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
 </head>
 <body>
@@ -11,20 +11,45 @@
 <a-scene
   xr-mode-ui="enterAREnabled: true"
   renderer="antialias: true"
-  device-orientation-permission-ui="enabled: true">
+  device-orientation-permission-ui="enabled: true"
+  webxr="requiredFeatures: hit-test">
 
   <!-- Cámara -->
-  <a-camera position="0 1.6 0"></a-camera>
+  <a-camera></a-camera>
 
-  <!-- Robot SIEMPRE visible -->
+  <!-- Cursor para colocar -->
+  <a-entity 
+    cursor="rayOrigin: mouse"
+    raycaster="objects: .clickable">
+  </a-entity>
+
+  <!-- Robot -->
   <a-entity
+    id="robot"
+    class="clickable"
     gltf-model="robot.glb"
-    position="0 0 -1"
+    position="0 0 -2"
     scale="0.2 0.2 0.2"
-    rotation="0 0 0">
+    visible="false">
   </a-entity>
 
 </a-scene>
+
+<script>
+AFRAME.registerComponent('colocar', {
+  init: function () {
+    const scene = document.querySelector('a-scene');
+    const robot = document.querySelector('#robot');
+
+    scene.addEventListener('click', () => {
+      robot.setAttribute('visible', true);
+      robot.setAttribute('position', '0 0 -1');
+    });
+  }
+});
+
+document.querySelector('a-scene').setAttribute('colocar', '');
+</script>
 
 </body>
 </html>
