@@ -3,53 +3,69 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AR Robot Superficie</title>
+  <title>AR Robot colocado en el entorno</title>
   <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
+
+  <script>
+    AFRAME.registerComponent('colocar-en-frente', {
+      init: function () {
+        this.colocado = false;
+
+        const sceneEl = this.el.sceneEl;
+        const modelo = this.el;
+
+        const colocarModelo = () => {
+          if (this.colocado) return;
+
+          const camera = sceneEl.camera;
+          if (!camera) return;
+
+          const cameraObj = camera.el.object3D;
+
+          const worldPos = new THREE.Vector3();
+          const worldDir = new THREE.Vector3();
+
+          cameraObj.getWorldPosition(worldPos);
+          cameraObj.getWorldDirection(worldDir);
+
+          // Coloca el modelo 1.5 m delante de la cámara
+          const distancia = 1.5;
+          const nuevaPos = worldPos.clone().add(worldDir.multiplyScalar(distancia));
+
+          // Bájalo un poco para que no quede a la altura de la cara
+          nuevaPos.y -= 1.2;
+
+          modelo.object3D.position.copy(nuevaPos);
+
+          // Orientación opcional
+          modelo.setAttribute('rotation', '0 35 0');
+          modelo.setAttribute('visible', 'true');
+
+          this.colocado = true;
+        };
+
+        sceneEl.addEventListener('click', colocarModelo);
+        sceneEl.addEventListener('touchstart', colocarModelo);
+      }
+    });
+  </script>
 </head>
 <body>
+  <a-scene
+    xr-mode-ui="enterAREnabled: true"
+    renderer="antialias: true"
+    device-orientation-permission-ui="enabled: true">
 
-<a-scene
-  xr-mode-ui="enterAREnabled: true"
-  renderer="antialias: true"
-  device-orientation-permission-ui="enabled: true"
-  webxr="requiredFeatures: hit-test">
+    <a-camera position="0 1.6 0"></a-camera>
 
-  <!-- Cámara -->
-  <a-camera></a-camera>
+    <a-entity
+      id="robot"
+      gltf-model="robot.glb"
+      visible="false"
+      scale="0.2 0.2 0.2"
+      colocar-en-frente>
+    </a-entity>
 
-  <!-- Cursor para colocar -->
-  <a-entity 
-    cursor="rayOrigin: mouse"
-    raycaster="objects: .clickable">
-  </a-entity>
-
-  <!-- Robot -->
-  <a-entity
-    id="robot"
-    class="clickable"
-    gltf-model="robot.glb"
-    position="0 0 -2"
-    scale="0.2 0.2 0.2"
-    visible="false">
-  </a-entity>
-
-</a-scene>
-
-<script>
-AFRAME.registerComponent('colocar', {
-  init: function () {
-    const scene = document.querySelector('a-scene');
-    const robot = document.querySelector('#robot');
-
-    scene.addEventListener('click', () => {
-      robot.setAttribute('visible', true);
-      robot.setAttribute('position', '0 0 -1');
-    });
-  }
-});
-
-document.querySelector('a-scene').setAttribute('colocar', '');
-</script>
-
+  </a-scene>
 </body>
 </html>
