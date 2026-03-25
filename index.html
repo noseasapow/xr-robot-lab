@@ -1,132 +1,125 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>XR - Robot Industrial</title>
-  <script src="https://aframe.io/releases/1.4.1/aframe.min.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>XR Robot - AR</title>
+  <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
 
-  <!-- Activar sombras en modelos GLB -->
   <script>
     AFRAME.registerComponent('activar-sombras-modelo', {
       init: function () {
         this.el.addEventListener('model-loaded', () => {
           const obj = this.el.getObject3D('mesh');
           if (!obj) return;
-
           obj.traverse((node) => {
             if (node.isMesh) {
               node.castShadow = true;
               node.receiveShadow = true;
+              if (node.material) node.material.needsUpdate = true;
             }
           });
         });
       }
     });
   </script>
-
 </head>
-
 <body>
+  <a-scene
+    renderer="antialias: true; colorManagement: true; shadowMapEnabled: true"
+    shadow="type: pcfsoft"
+    xr-mode-ui="XRMode: xr; enterAREnabled: true; enterVREnabled: true"
+    webxr="requiredFeatures: local; optionalFeatures: hit-test;"
+    ar-hit-test="target: #robot;"
+    device-orientation-permission-ui="enabled: true">
 
-<a-scene 
-  renderer="antialias: true; shadowMapEnabled: true"
-  shadow="type: pcfsoft"
-  vr-mode-ui="enabled: true"
-  device-orientation-permission-ui="enabled: true">
+    <!-- Luces -->
+    <a-light type="ambient" intensity="0.7"></a-light>
+    <a-light
+      type="directional"
+      position="4 8 4"
+      intensity="1.2"
+      cast-shadow="true"
+      shadow-map-width="2048"
+      shadow-map-height="2048">
+    </a-light>
 
-  <!-- Luces -->
-  <a-light type="ambient" intensity="0.4"></a-light>
+    <!-- Cámara -->
+    <a-entity position="0 1.6 8">
+      <a-camera wasd-controls look-controls></a-camera>
+    </a-entity>
 
-  <a-light
-    type="directional"
-    position="4 8 4"
-    intensity="1.2"
-    castShadow="true"
-    shadow-mapWidth="2048"
-    shadow-mapHeight="2048"
-    shadow-camera-left="-20"
-    shadow-camera-right="20"
-    shadow-camera-bottom="-20"
-    shadow-camera-top="20">
-  </a-light>
+    <!-- Elementos solo para modo normal / VR -->
+    <a-plane
+      hide-on-enter-ar
+      position="0 0 0"
+      rotation="-90 0 0"
+      width="30"
+      height="30"
+      color="#6e6e6e"
+      shadow="receive: true">
+    </a-plane>
 
-  <!-- Cámara (compatible VR + móvil) -->
-  <a-entity position="0 1.6 8">
-    <a-camera 
-      wasd-controls 
-      look-controls="pointerLockEnabled: true">
-    </a-camera>
-  </a-entity>
+    <a-plane
+      hide-on-enter-ar
+      position="0 5 -12"
+      width="30"
+      height="10"
+      color="#3a3a3a">
+    </a-plane>
 
-  <!-- Piso -->
-  <a-plane
-    position="0 0 0"
-    rotation="-90 0 0"
-    width="30"
-    height="30"
-    color="#6e6e6e"
-    shadow="receive: true">
-  </a-plane>
+    <a-plane
+      hide-on-enter-ar
+      position="-15 5 0"
+      rotation="0 90 0"
+      width="24"
+      height="10"
+      color="#3a3a3a">
+    </a-plane>
 
-  <!-- Pared trasera -->
-  <a-plane
-    position="0 5 -12"
-    width="30"
-    height="10"
-    color="#3a3a3a">
-  </a-plane>
+    <a-plane
+      hide-on-enter-ar
+      position="15 5 0"
+      rotation="0 -90 0"
+      width="24"
+      height="10"
+      color="#3a3a3a">
+    </a-plane>
 
-  <!-- Pared izquierda -->
-  <a-plane
-    position="-15 5 0"
-    rotation="0 90 0"
-    width="24"
-    height="10"
-    color="#3a3a3a">
-  </a-plane>
+    <a-plane
+      hide-on-enter-ar
+      position="0 10 0"
+      rotation="90 0 0"
+      width="30"
+      height="30"
+      color="#2a2a2a">
+    </a-plane>
 
-  <!-- Pared derecha -->
-  <a-plane
-    position="15 5 0"
-    rotation="0 -90 0"
-    width="24"
-    height="10"
-    color="#3a3a3a">
-  </a-plane>
+    <a-sky hide-on-enter-ar color="#2b2b2b"></a-sky>
 
-  <!-- Techo -->
-  <a-plane
-    position="0 10 0"
-    rotation="90 0 0"
-    width="30"
-    height="30"
-    color="#2a2a2a">
-  </a-plane>
+    <a-box
+      hide-on-enter-ar
+      position="3 1 -3"
+      width="1"
+      height="2"
+      depth="1"
+      color="#555555"
+      shadow="cast: true; receive: true">
+    </a-box>
 
-  <!-- Fondo -->
-  <a-sky color="#2b2b2b"></a-sky>
+    <a-box
+      hide-on-enter-ar
+      position="-3 1 -4"
+      width="1"
+      height="2"
+      depth="1"
+      color="#555555"
+      shadow="cast: true; receive: true">
+    </a-box>
 
-  <!-- Elementos industriales -->
-  <a-box
-    position="3 1 -3"
-    width="1"
-    height="2"
-    depth="1"
-    color="#555"
-    shadow="cast: true; receive: true">
-  </a-box>
-
-  <a-box
-    position="-3 1 -4"
-    width="1"
-    height="2"
-    depth="1"
-    color="#555"
-    shadow="cast: true; receive: true">
-  </a-box>
-    <!-- Modelo CAD -->
+    <!-- Robot: oculto al inicio, aparece al colocarlo -->
     <a-entity
+      id="robot"
       gltf-model="robot.glb"
       position="1 -4 4"
       rotation="-10 45 0"
